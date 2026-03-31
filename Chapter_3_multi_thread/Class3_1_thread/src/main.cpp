@@ -9,8 +9,8 @@ struct ImuFrame {
   std::array<double, 3> gyro;
 };
 
-auto data_generation(size_t) -> std::unique_ptr<std::vector<ImuFrame>>;
-void data_display(std::unique_ptr<std::vector<ImuFrame>>);
+auto data_generation(size_t) -> std::vector<ImuFrame>;
+void data_display(std::vector<ImuFrame>);
 
 auto main() -> int {
   // 主线程生成数据
@@ -26,19 +26,19 @@ auto main() -> int {
   return 0;
 }
 
-auto data_generation(size_t length) -> std::unique_ptr<std::vector<ImuFrame>> {
-  auto p_data_buffer = std::make_unique<std::vector<ImuFrame>>(length);
+auto data_generation(size_t length) -> std::vector<ImuFrame> {
+  auto data_buffer = std::vector<ImuFrame>(length);
   size_t i = 1;
-  for (auto& data : *p_data_buffer) {
+  for (auto& data : data_buffer) {
     data =
         ImuFrame{{0.01 * i, -0.02 * i, 0.03 * i}, {0.1 * i, 0.2 * i, -0.3 * i}};
     ++i;
   }
-  return p_data_buffer;
+  return data_buffer;
 }
 
-void data_display(std::unique_ptr<std::vector<ImuFrame>> p_data_buffer) {
-  for (const auto& data : *p_data_buffer) {
+void data_display(std::vector<ImuFrame> data_buffer) {
+  for (const auto& data : data_buffer) {
     std::cout << "[data frame] : " << std::endl;
     // 打印加速度
     std::cout << "[accel] : ";
