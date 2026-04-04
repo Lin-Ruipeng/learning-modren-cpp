@@ -24,7 +24,7 @@ auto process_imu_batch(ImuBatch&& imu_batch, int job_i) -> ImuBatch {
     std::cout << "线程 " << job_i << " 处理完成了第 " << ++count << " 帧数据\n";
   }
   std::cout << "报告: 线程 " << job_i << " , 总计处理了 " << count << " 帧数据\n";
-  return imu_batch;  // 返回值会被move优化
+  return std::move(imu_batch);  // &&无法直接被返回值优化,必须手动move
 }
 
 auto main() -> int {
