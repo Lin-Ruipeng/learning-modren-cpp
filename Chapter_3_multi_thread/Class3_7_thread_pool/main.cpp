@@ -57,8 +57,11 @@ struct ThreadPool {
 
   // 线程池析构: 对应销毁n个工作线程
   ~ThreadPool() {
-    stop_ = true;      // 停止标志位
-    cv_.notify_all();  // 通知全体
+    {  // 必须在获取互斥锁的保护下修改状态和发出通知：
+      std::lock_guard<std::mutex> lock(mtx_);
+      stop_ = true;      // 停止标志位
+      cv_.notify_all();  // 通知全体
+    }
     for (auto& t : workers_) {
       t.join();  // 等待所有线程都结束才行
     }
@@ -118,7 +121,7 @@ auto main(int argc, char** argv) -> int {
 
   // 3. 主线程必须等待子线程运行结束!!!
   while (thread_pool.task_count_ != FRAME_COUNT) {
-    std::this_thread::yield();  // 让出CPU，不空转浪费
+    std::this_thread::yield();  // 让出CPU，不空转浪费(但是这不好,这是一个自旋锁!浪费性能!)
   }
 
   // 4. 打印相关结果
